@@ -2,6 +2,9 @@
   "name": "healthcare",
   "version": "1.0.0",
   "description": "",
+  "keywords": [],
+  "author": "Petia Latinova <petia@hack.bg>",
+  "license": "MIT",
   "scripts": {
     "coverage": "truffle run coverage",
     "test": "truffle test",
@@ -22,8 +25,5 @@
   "repository": {
     "type": "git",
     "url": ""
-  },
-  "keywords": [],
-  "author": "Petia Latinova",
-  "license": "MIT"
+  }
 }
