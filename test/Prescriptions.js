@@ -1,8 +1,11 @@
+const { BN } = require('@openzeppelin/test-helpers');
 const { assert } = require('chai');
 
 const Prescriptions = artifacts.require('Prescriptions');
 
 let prescriptionInstance;
+let tokenId;
+const medicamentNumbers = "0,1,2";
 
 contract('Prescriptions', (accounts) => {
   it('Should deploy Prescriptions contract', async () => {
@@ -10,4 +13,150 @@ contract('Prescriptions', (accounts) => {
     const result = await prescriptionInstance.owner();
     assert.equal(result, accounts[0], 'Unable to make first account owner.');
   });
+
+  it('Add doctor', async () => {
+    const result = await prescriptionInstance.setDoctor(accounts[1]);
+    assert.ok(result, 'Failed to add doctor');
+  });
+
+  it('Check does the doctor address is added', async () => {
+    const result = await prescriptionInstance.doctors(accounts[1]);
+    assert.equal(result, true, 'The doctor is not added');
+  });
+
+  it('Add pharmacie', async () => {
+    const result = await prescriptionInstance.setPharmacy(accounts[2]);
+    assert.ok(result, 'Failed to add pharmacie');
+  });
+
+  it('Check does the pharmacie address is added', async () => {
+    const result = await prescriptionInstance.pharmacies(accounts[2]);
+    assert.equal(result, true, 'The pharmacie is not added');
+  });
+
+  it('Should fail when trying to create prescription from pharmacy address', async () => {
+    try {
+      await prescriptionInstance.createPrescription(medicamentNumbers, accounts[3], { from: accounts[2] });
+      assert.fail('The transaction should have thrown an error');
+    } catch (err) {
+      assert.include(
+        err.message,
+        'VM Exception',
+        'The error message should contain "VM Exception"',
+      );
+    }
+  });
+
+  it('Create prescription from random address', async () => {
+    try {
+      await prescriptionInstance.createPrescription(medicamentNumbers, accounts[3], { from: accounts[4] });
+      assert.fail('The transaction should have thrown an error');
+    } catch (err) {
+      assert.include(
+        err.message,
+        'VM Exception',
+        'The error message should contain "VM Exception"',
+      );
+    }
+  });
+
+  it('Create prescription from doctor\'s address', async () => {
+    await prescriptionInstance.createPrescription(medicamentNumbers, accounts[3], { from: accounts[1] })
+    //tokenOfOwnerByIndex returns the total amount of tokens stored by the contract
+    tokenId = await prescriptionInstance.tokenOfOwnerByIndex(accounts[3], 0);
+    assert.ok(tokenId, 'Can\'t create prescription');
+  });
+
+  it('Check the patient prescription', async () => {
+    const result = await prescriptionInstance.ownerOf(tokenId);
+    assert.equal(result, accounts[3],'The prescription can\'t be found in the patient address');
+  });
+
+  it('Check does the right medicines are in the prescription', async () => {
+    const result = await prescriptionInstance.tokenURI(BN(tokenId));
+    assert.equal(result, medicamentNumbers, 'The medicine\'s IDs are not correct');
+  });
+
+  //safeTransferFrom(from, to, tokenId)
+  //_transfer - send to pharmacy from patient - success
+  xit('Send the prescription from the patient to the pharmacy', async () => {
+    // console.log("TOKEN IDDDDDDDD:");
+    // console.log(tokenId);
+    await prescriptionInstance.approve(accounts[2], tokenId, { from: accounts[3] });
+    const result = await prescriptionInstance.safeTransferFrom(accounts[3], accounts[2], tokenId, { from: accounts[2] });
+    assert.ok(result, 'Coldn\'t transfer from the patient to pharmacy');
+  });
+
+  //_transfer
+  xit('Should fail when send the prescription from the patient to doctor', async () => {
+    try {
+      await prescriptionInstance.approve(accounts[1], tokenId, { from: accounts[3] });
+      await prescriptionInstance.safeTransferFrom(accounts[3], accounts[1], tokenId, { from: accounts[3] });
+      assert.fail('The transaction should have thrown an error');
+    } catch (err) {
+      assert.include(
+        err.message,
+        'VM Exception',
+        'The error message should contain "VM Exception"',
+      );
+    }
+  });
+
+  //_transfer
+  xit('Should fail when send the prescription from the patient to random address', async () => {
+    try {
+      await prescriptionInstance.approve(accounts[4], tokenId, { from: accounts[3] });
+      await prescriptionInstance.safeTransferFrom(accounts[3], accounts[4], tokenId, { from: accounts[3] });
+      assert.fail('The transaction should have thrown an error');
+    } catch (err) {
+      assert.include(
+        err.message,
+        'VM Exception',
+        'The error message should contain "VM Exception"',
+      );
+    }
+  });
+
+  //_transfer - send to pharmacy but from the doctor - fail
+  xit('Should fail when send the prescription from the doctor to pharmacy', async () => {
+    try {
+      await prescriptionInstance.approve(accounts[2], tokenId, { from: accounts[1] });
+      await prescriptionInstance.safeTransferFrom(accounts[1], accounts[2], tokenId, { from: accounts[1] });
+      assert.fail('The transaction should have thrown an error');
+    } catch (err) {
+      assert.include(
+        err.message,
+        'VM Exception',
+        'The error message should contain "VM Exception"',
+      );
+    }
+  });
+
+  //??_transfer - send from random address to the pharmacy?? - fail
+  xit('Should fail when send the prescription from random address to pharmacy', async () => {
+    try {
+      await prescriptionInstance.approve(accounts[2], tokenId, { from: accounts[4] });
+      await prescriptionInstance.safeTransferFrom(accounts[4], accounts[2], tokenId, { from: accounts[4] });
+      assert.fail('The transaction should have thrown an error');
+    } catch (err) {
+      assert.include(
+        err.message,
+        'VM Exception',
+        'The error message should contain "VM Exception"',
+      );
+    }
+  });
+
+  
+
+  //_transfer - check does the pharmasy is owner of the token with ownerOf function
+  //one fail and one not?
+  //it('Check does the pharmacy is owner of the recepie', async () => {
+
+  //_transfer - send to second pharmacy from patient - fail
+  //it('Should fail when send try to send prescription to second pharmacy', async () => {
+
+  //_transfer - send from first pharmacy to second pharmacy - fail
+  //it('Should fail when send prescription from first to second pharmacy', async () => {
+
 });

@@ -9,24 +9,32 @@ contract Prescriptions is ERC721 {
   mapping(address => bool) public doctors;
   mapping(address => bool) public pharmacies;
 
-  constructor() ERC721('Prescription', 'DRG') {
+  constructor()
+    ERC721('Prescription', 'DRG')
+  {
     tokenCounter = 0;
     owner = msg.sender;
   }
 
-  function setDoctor(address _address) public onlyOwner {
+  function setDoctor(address _address)
+    public
+    onlyOwner
+  {
     require(!doctors[_address]);
     doctors[_address] = true;
   }
 
-  function setPharmacy(address _address) public onlyOwner {
+  function setPharmacy(address _address)
+    public
+    onlyOwner
+  {
     require(!pharmacies[_address]);
     pharmacies[_address] = true;
   }
 
   function createPrescription(string memory medicines, address patient)
     public
-    returns (uint256)
+    returns(uint256)
   {
     require(doctors[msg.sender]);
     require(!doctors[patient]);
@@ -38,11 +46,10 @@ contract Prescriptions is ERC721 {
     return newItemId;
   }
 
-  function _transfer(
-    address from,
-    address to,
-    uint256 tokenId
-  ) internal override {
+  function _transfer(address from, address to, uint256 tokenId)
+    internal
+    override
+  {
     require(pharmacies[to]);
     require(!pharmacies[from]);
     require(!doctors[from]);

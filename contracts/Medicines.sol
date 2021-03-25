@@ -15,7 +15,10 @@ contract Medicines {
     _;
   }
 
-  function addMedicine(string memory name) public onlyOwner {
+  function addMedicine(string memory name)
+    public
+    onlyOwner
+  {
     //require(keccak256(bytes(medicines[id])) == keccak256(bytes("")));
     medicines[medicinesCount] = name;
     medicinesCount++;

@@ -9,7 +9,7 @@ contract Insurance {
     uint256 amountInsurance;
   }
 
-  mapping(address => Patient) private patients;
+  mapping(address => Patient) private patients; //number of insurance
   mapping(address => bool) public doctors;
   mapping(address => bool) public insurers;
 
@@ -22,24 +22,28 @@ contract Insurance {
     _;
   }
 
-  function setDoctor(address _address) public onlyOwner {
+  function setDoctor(address _address)
+    public
+    onlyOwner
+  {
     require(!doctors[_address]);
     doctors[_address] = true;
   }
 
-  function setInsurer(address _address) public onlyOwner {
+  function setInsurer(address _address)
+    public
+    onlyOwner
+  {
     require(!insurers[_address]);
     insurers[_address] = true;
   }
 
-  function setPatientData(uint256 _amountInsured) public returns (address) {
+  function setPatientData(uint256 _amountInsured)
+    public
+    returns(address)
+  {
     require(insurers[msg.sender]);
-    address uniqueId =
-      address(
-        uint160(
-          uint256(keccak256(abi.encodePacked(msg.sender, block.timestamp)))
-        )
-      );
+    address uniqueId = address(uint160(uint256(keccak256(abi.encodePacked(msg.sender, block.timestamp)))));
     require(patients[uniqueId].isDegenerated == false);
     patients[uniqueId].isDegenerated = true;
     patients[uniqueId].amountInsurance = _amountInsured;
@@ -49,11 +53,10 @@ contract Insurance {
 
   function useInsurance(address _uniqueId, uint256 _amountUsed)
     public
-    returns (string memory)
+    returns(string memory)
   {
     require(doctors[msg.sender]);
-
-    if (patients[_uniqueId].amountInsurance < _amountUsed) {
+    if(patients[_uniqueId].amountInsurance < _amountUsed) {
       revert('Not enough amount');
     }
 

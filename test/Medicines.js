@@ -12,9 +12,7 @@ contract('Medicines', (accounts) => {
   });
 
   it('Add medicine', async () => {
-    const result = await medicinesInstance.addMedicine('aspirin', {
-      from: accounts[0],
-    });
+    const result = await medicinesInstance.addMedicine('aspirin', { from: accounts[0] });
     assert.ok(result, 'The medicine does not added');
   });
 
