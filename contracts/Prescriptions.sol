@@ -53,7 +53,7 @@ contract Prescriptions is ERC721 {
     require(pharmacies[to]);
     require(!pharmacies[from]);
     require(!doctors[from]);
-    _transfer(from, to, tokenId);
+    super._transfer(from, to, tokenId);
   }
 
   modifier onlyOwner() {

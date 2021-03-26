@@ -77,18 +77,7 @@ contract('Prescriptions', (accounts) => {
     assert.equal(result, medicamentNumbers, 'The medicine\'s IDs are not correct');
   });
 
-  //safeTransferFrom(from, to, tokenId)
-  //_transfer - send to pharmacy from patient - success
-  xit('Send the prescription from the patient to the pharmacy', async () => {
-    // console.log("TOKEN IDDDDDDDD:");
-    // console.log(tokenId);
-    await prescriptionInstance.approve(accounts[2], tokenId, { from: accounts[3] });
-    const result = await prescriptionInstance.safeTransferFrom(accounts[3], accounts[2], tokenId, { from: accounts[2] });
-    assert.ok(result, 'Coldn\'t transfer from the patient to pharmacy');
-  });
-
-  //_transfer
-  xit('Should fail when send the prescription from the patient to doctor', async () => {
+  it('Should fail when send the prescription from the patient to doctor', async () => {
     try {
       await prescriptionInstance.approve(accounts[1], tokenId, { from: accounts[3] });
       await prescriptionInstance.safeTransferFrom(accounts[3], accounts[1], tokenId, { from: accounts[3] });
@@ -102,11 +91,10 @@ contract('Prescriptions', (accounts) => {
     }
   });
 
-  //_transfer
-  xit('Should fail when send the prescription from the patient to random address', async () => {
+  it('Should fail when send the prescription from the patient to random address', async () => {
     try {
       await prescriptionInstance.approve(accounts[4], tokenId, { from: accounts[3] });
-      await prescriptionInstance.safeTransferFrom(accounts[3], accounts[4], tokenId, { from: accounts[3] });
+      await prescriptionInstance.safeTransferFrom(accounts[3], accounts[4], tokenId, { from: accounts[4] });
       assert.fail('The transaction should have thrown an error');
     } catch (err) {
       assert.include(
@@ -117,11 +105,10 @@ contract('Prescriptions', (accounts) => {
     }
   });
 
-  //_transfer - send to pharmacy but from the doctor - fail
-  xit('Should fail when send the prescription from the doctor to pharmacy', async () => {
+  it('Should fail when send the prescription from the doctor to pharmacy', async () => {
     try {
       await prescriptionInstance.approve(accounts[2], tokenId, { from: accounts[1] });
-      await prescriptionInstance.safeTransferFrom(accounts[1], accounts[2], tokenId, { from: accounts[1] });
+      await prescriptionInstance.safeTransferFrom(accounts[1], accounts[2], tokenId, { from: accounts[2] });
       assert.fail('The transaction should have thrown an error');
     } catch (err) {
       assert.include(
@@ -132,11 +119,10 @@ contract('Prescriptions', (accounts) => {
     }
   });
 
-  //??_transfer - send from random address to the pharmacy?? - fail
-  xit('Should fail when send the prescription from random address to pharmacy', async () => {
+  it('Should fail when send the prescription from random address to pharmacy', async () => {
     try {
       await prescriptionInstance.approve(accounts[2], tokenId, { from: accounts[4] });
-      await prescriptionInstance.safeTransferFrom(accounts[4], accounts[2], tokenId, { from: accounts[4] });
+      await prescriptionInstance.safeTransferFrom(accounts[4], accounts[2], tokenId, { from: accounts[2] });
       assert.fail('The transaction should have thrown an error');
     } catch (err) {
       assert.include(
@@ -147,16 +133,49 @@ contract('Prescriptions', (accounts) => {
     }
   });
 
-  
+  it('Send the prescription from the patient to the pharmacy', async () => {
+    await prescriptionInstance.approve(accounts[2], tokenId, { from: accounts[3] });
+    const result = await prescriptionInstance.safeTransferFrom(accounts[3], accounts[2], tokenId, { from: accounts[2] });
+    assert.ok(result, 'Coldn\'t transfer from the patient to pharmacy');
+  });
 
-  //_transfer - check does the pharmasy is owner of the token with ownerOf function
-  //one fail and one not?
-  //it('Check does the pharmacy is owner of the recepie', async () => {
+  it('Check does the pharmacy is owner of the recepie.', async () => {
+    const result = await prescriptionInstance.ownerOf(tokenId);
+    assert.equal(result, accounts[2], 'The pharmacy is not an owner');
+  });
 
-  //_transfer - send to second pharmacy from patient - fail
-  //it('Should fail when send try to send prescription to second pharmacy', async () => {
+  it('Check that other pharmacy is not owner of the recepie.', async () => {
+    const result = await prescriptionInstance.ownerOf(tokenId);
+    assert.notEqual(result, accounts[5], 'The pharmacy is not an owner');
+  });
 
-  //_transfer - send from first pharmacy to second pharmacy - fail
-  //it('Should fail when send prescription from first to second pharmacy', async () => {
+  it('Should fail when send try to send prescription to second pharmacy', async () => {
+    try {
+      await prescriptionInstance.setPharmacy(accounts[5]);
+      await prescriptionInstance.approve(accounts[5], tokenId, { from: accounts[3] });
+      await prescriptionInstance.safeTransferFrom(accounts[3], accounts[5], tokenId, { from: accounts[5] });
+      assert.fail('The transaction should have thrown an error');
+    } catch (err) {
+      assert.include(
+        err.message,
+        'not owner nor approved',
+        'The error message should contain "not owner nor approved"',
+      );
+    }
+  });
+
+  it('Should fail when send prescription from first to second pharmacy', async () => {
+    try{
+    await prescriptionInstance.approve(accounts[5], tokenId, { from: accounts[2] });
+    await prescriptionInstance.safeTransferFrom(accounts[2], accounts[5], tokenId, { from: accounts[5] });
+    assert.fail('The transaction should have thrown an error');
+    } catch (err) {
+      assert.include(
+        err.message,
+        'VM Exception',
+        'The error message should contain "VM Exception"',
+      );
+    }
+  });
 
 });
