@@ -8,6 +8,8 @@ let tokenId;
 const medicamentNumbers = "0,1,2";
 
 contract('Prescriptions', (accounts) => {
+  const [owner, doctor, pharmacy, patient, other_address, other_pharmacy] = accounts; //TODO:change after
+  
   it('Should deploy Prescriptions contract', async () => {
     prescriptionInstance = await Prescriptions.deployed();
     const result = await prescriptionInstance.owner();
@@ -24,19 +26,19 @@ contract('Prescriptions', (accounts) => {
     assert.equal(result, true, 'The doctor is not added');
   });
 
-  it('Add pharmacie', async () => {
+  it('Add pharmacy', async () => {
     const result = await prescriptionInstance.setPharmacy(accounts[2]);
-    assert.ok(result, 'Failed to add pharmacie');
+    assert.ok(result, 'Failed to add pharmacy');
   });
 
-  it('Check does the pharmacie address is added', async () => {
+  it('Check does the pharmacy address is added', async () => {
     const result = await prescriptionInstance.pharmacies(accounts[2]);
-    assert.equal(result, true, 'The pharmacie is not added');
+    assert.equal(result, true, 'The pharmacy is not added');
   });
 
   it('Should fail when trying to create prescription from pharmacy address', async () => {
     try {
-      await prescriptionInstance.createPrescription(medicamentNumbers, accounts[3], { from: accounts[2] });
+      await prescriptionInstance.createPrescription(medicamentNumbers, accounts[3], 1000, { from: accounts[2] });
       assert.fail('The transaction should have thrown an error');
     } catch (err) {
       assert.include(
@@ -47,9 +49,9 @@ contract('Prescriptions', (accounts) => {
     }
   });
 
-  it('Create prescription from random address', async () => {
+  it('Create prescription from other address', async () => {
     try {
-      await prescriptionInstance.createPrescription(medicamentNumbers, accounts[3], { from: accounts[4] });
+      await prescriptionInstance.createPrescription(medicamentNumbers, accounts[3], 1000, { from: accounts[4] });
       assert.fail('The transaction should have thrown an error');
     } catch (err) {
       assert.include(
@@ -61,7 +63,7 @@ contract('Prescriptions', (accounts) => {
   });
 
   it('Create prescription from doctor\'s address', async () => {
-    await prescriptionInstance.createPrescription(medicamentNumbers, accounts[3], { from: accounts[1] })
+    await prescriptionInstance.createPrescription(medicamentNumbers, accounts[3], 1000, { from: accounts[1] })
     //tokenOfOwnerByIndex returns the total amount of tokens stored by the contract
     tokenId = await prescriptionInstance.tokenOfOwnerByIndex(accounts[3], 0);
     assert.ok(tokenId, 'Can\'t create prescription');
@@ -169,6 +171,27 @@ contract('Prescriptions', (accounts) => {
     await prescriptionInstance.approve(accounts[5], tokenId, { from: accounts[2] });
     await prescriptionInstance.safeTransferFrom(accounts[2], accounts[5], tokenId, { from: accounts[5] });
     assert.fail('The transaction should have thrown an error');
+    } catch (err) {
+      assert.include(
+        err.message,
+        'VM Exception',
+        'The error message should contain "VM Exception"',
+      );
+    }
+  });
+
+  it('Create prescription that expires on next block', async () => {
+    await prescriptionInstance.createPrescription(medicamentNumbers, accounts[3], 1, { from: accounts[1] })
+    //tokenOfOwnerByIndex returns the total amount of tokens stored by the contract
+    tokenId = await prescriptionInstance.tokenOfOwnerByIndex(accounts[3], 0);
+    assert.ok(tokenId, 'Can\'t create prescription');
+  });
+
+  it('Should fail when send expired the prsescription from the patient to doctor address', async () => {
+    try {
+      await prescriptionInstance.approve(accounts[1], tokenId, { from: accounts[3] });
+      await prescriptionInstance.safeTransferFrom(accounts[3], accounts[1], tokenId, { from: accounts[3] });
+      assert.fail('The transaction should have thrown an error');
     } catch (err) {
       assert.include(
         err.message,

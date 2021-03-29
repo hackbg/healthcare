@@ -8,6 +8,7 @@ contract Prescriptions is ERC721 {
   uint256 public tokenCounter;
   mapping(address => bool) public doctors;
   mapping(address => bool) public pharmacies;
+  mapping(uint256 => uint256) public expire;
 
   constructor()
     ERC721('Prescription', 'DRG')
@@ -32,7 +33,7 @@ contract Prescriptions is ERC721 {
     pharmacies[_address] = true;
   }
 
-  function createPrescription(string memory medicines, address patient)
+  function createPrescription(string memory medicines, address patient, uint256 expireAfter)
     public
     returns(uint256)
   {
@@ -42,6 +43,7 @@ contract Prescriptions is ERC721 {
     uint256 newItemId = tokenCounter;
     _safeMint(patient, newItemId);
     _setTokenURI(newItemId, medicines);
+    expire[newItemId] = block.number + expireAfter;
     tokenCounter = tokenCounter + 1;
     return newItemId;
   }
@@ -50,6 +52,7 @@ contract Prescriptions is ERC721 {
     internal
     override
   {
+    require(block.number < expire[tokenId]);
     require(pharmacies[to]);
     require(!pharmacies[from]);
     require(!doctors[from]);
