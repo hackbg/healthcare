@@ -1,4 +1,4 @@
-const { assert } = require('chai');
+const {assert} = require('chai');
 
 const Medicines = artifacts.require('Medicines');
 
@@ -12,7 +12,7 @@ contract('Medicines', (accounts) => {
   });
 
   it('Add medicine', async () => {
-    const result = await medicinesInstance.addMedicine('aspirin', { from: accounts[0] });
+    const result = await medicinesInstance.addMedicine('aspirin', {from: accounts[0]});
     assert.ok(result, 'The medicine does not added');
   });
 
@@ -22,33 +22,28 @@ contract('Medicines', (accounts) => {
   });
 
   it('Add second medicine and check the total number of medicines', async () => {
-    await medicinesInstance.addMedicine('analgin', { from: accounts[0] });
+    await medicinesInstance.addMedicine('analgin', {from: accounts[0]});
     assert.equal(
       await medicinesInstance.medicinesCount(),
       2,
-      'The total numbers of medicines is not correct.',
+      'The total numbers of medicines is not correct.'
     );
   });
 
   it('id:1000 from the mapping array should be empty', async () => {
-    assert.equal(
-      await medicinesInstance.medicines(1000),
-      '',
-      'id:1000 is not empty',
-    );
+    assert.equal(await medicinesInstance.medicines(1000), '', 'id:1000 is not empty');
   });
 
   it("Can't add medicine if not an owner", async () => {
     try {
-      await medicinesInstance.addMedicine('vitamin C', { from: accounts[1] });
+      await medicinesInstance.addMedicine('vitamin C', {from: accounts[1]});
       assert.fail('The transaction should have thrown an error');
     } catch (err) {
       assert.include(
         err.message,
         'Exception while processing transaction',
-        'The error message should contain "Exception while processing transaction"',
+        'The error message should contain "Exception while processing transaction"'
       );
     }
   });
-  
 });

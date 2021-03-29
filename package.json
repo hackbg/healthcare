@@ -19,6 +19,7 @@
     "chai": "^4.3.0",
     "eth-gas-reporter": "^0.2.21",
     "mocha": "^8.3.0",
+    "prettier": "^2.2.1",
     "solidity-coverage": "^0.7.15",
     "truffle": "^5.2.1"
   },
