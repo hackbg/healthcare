@@ -1,4 +1,3 @@
-const {BN} = require('@openzeppelin/test-helpers'); //TODO: delete after if is not used
 const {assert} = require('chai');
 
 const Insurance = artifacts.require('Insurance');
@@ -64,12 +63,12 @@ contract('Insurance', (accounts) => {
     await insuranceInstance.createInsurance(500, patient, {from: insurer});
     //balanceOf returns the total amount of tokens stored by the contract
     const result = await insuranceInstance.balanceOf(patient);
-    assert.equal(result, 500, "Can't create prescription");
+    assert.equal(result, 500, "Can't create insurance");
   });
 
   it('Check the patient insurance amount', async () => {
     const result = await insuranceInstance.balanceOf(patient);
-    assert.equal(result, 500, "Can't create prescription");
+    assert.equal(result, 500, "Can't create insurance");
   });
 
   it('Should fail when send the insurance from the patient to insurer', async () => {
@@ -124,13 +123,13 @@ contract('Insurance', (accounts) => {
     }
   });
 
-  it('Send the prescription from the patient to the doctor', async () => {
+  it('Send the insurance from the patient to the doctor', async () => {
     await insuranceInstance.transfer(doctor, 100, {from: patient});
     const resultPatient = await insuranceInstance.balanceOf(patient);
     assert.equal(resultPatient, 400, "Coldn't transfer from the patient to doctor");
   });
 
-  it('Check does the doctor recieved the payment.', async () => {
+  it('Check does the doctor received the payment.', async () => {
     const resultDoctor = await insuranceInstance.balanceOf(doctor);
     assert.equal(resultDoctor, 100, "Coldn't transfer from the patient to doctor");
   });
