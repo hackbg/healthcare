@@ -51,7 +51,7 @@ contract('Prescriptions', (accounts) => {
     }
   });
 
-  it('Create prescription from other address', async () => {
+  it('Should fail to create prescription from other address', async () => {
     try {
       await prescriptionInstance.createPrescription(medicamentNumbers, patient, 1000, {
         from: other_address,
