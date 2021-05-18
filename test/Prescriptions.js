@@ -70,7 +70,7 @@ contract('Prescriptions', (accounts) => {
     await prescriptionInstance.createPrescription(medicamentNumbers, patient, 1000, {
       from: doctor,
     });
-    //tokenOfOwnerByIndex returns the total amount of tokens stored by the contract
+    //tokenOfOwnerByIndex returns the token on a given index
     tokenId = await prescriptionInstance.tokenOfOwnerByIndex(patient, 0);
     assert.ok(tokenId, "Can't create prescription");
   });
@@ -201,13 +201,15 @@ contract('Prescriptions', (accounts) => {
   });
 
   it('Create prescription that expires on next block', async () => {
-    await prescriptionInstance.createPrescription(medicamentNumbers, patient, 1, {
+    await prescriptionInstance.createPrescription(medicamentNumbers, patient, 3600, {
       from: doctor,
     });
     //tokenOfOwnerByIndex returns the total amount of tokens stored by the contract
     tokenId = await prescriptionInstance.tokenOfOwnerByIndex(patient, 0);
     assert.ok(tokenId, "Can't create prescription");
   });
+
+  //TODO: add test for expired date
 
   it('Should fail when send expired the prsescription from the patient to doctor address', async () => {
     try {
