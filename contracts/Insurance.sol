@@ -2,6 +2,7 @@
 pragma solidity >=0.7.5 <0.9.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+// import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v3.4/contracts/token/ERC20/ERC20.sol";
 
 contract Insurance is ERC20 {
   address public owner;
