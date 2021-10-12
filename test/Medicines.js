@@ -46,4 +46,14 @@ contract('Medicines', (accounts) => {
       );
     }
   });
+
+  it('Delete medicine', async () => {
+    const result = await medicinesInstance.delMedicine(0, {from: accounts[0]});
+    assert.ok(result, 'The medicine does not added');
+  });
+
+  it("Check does the first medicine is deleted", async () => {
+    const result = await medicinesInstance.deleted(0);
+    assert.equal(result, true, 'The medicine is not deleted');
+  });
 });
