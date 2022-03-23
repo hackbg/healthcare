@@ -2,6 +2,7 @@
 pragma solidity >=0.7.5 <0.9.0;
 
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
+// to deploy from Remix change the import
 // import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v3.4/contracts/token/ERC721/ERC721.sol";
 
 contract Prescriptions is ERC721 {
